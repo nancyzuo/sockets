@@ -2,33 +2,37 @@ const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 
-// Initialize Express app and HTTP server
 const app = express();
 const server = http.createServer(app);
-
-// Initialize Socket.io
 const io = socketIo(server);
 
-// Serve static files (like the HTML and JS)
+// Serve static files (for the front-end)
 app.use(express.static('public'));
 
-// When a new user connects
+// Handle connections to the server
 io.on('connection', (socket) => {
-    console.log('A user connected');
+  console.log('a user connected');
 
-    // Listen for cursor position updates
-    socket.on('cursor-move', (cursorData) => {
-        // Broadcast the cursor position to all other clients
-        socket.broadcast.emit('cursor-move', cursorData);
-    });
+  // Join a room
+  socket.on('join room', (room) => {
+    socket.join(room);
+    console.log(`a user has joined ${room}`);
+    // Emit a message to the room that a user has joined
+    io.to(room).emit('chat message', `a new user has joined ${room}`);
+  });
 
-    // When a user disconnects
-    socket.on('disconnect', () => {
-        console.log('A user disconnected');
-    });
+  // Listen for chat messages
+  socket.on('chat message', (data) => {
+    io.to(data.room).emit('chat message', data.message);
+  });
+
+  // Handle disconnection
+  socket.on('disconnect', () => {
+    console.log('user disconnected');
+  });
 });
 
-// Start the server on port 3000
+// Set up the server to listen on port 3000
 server.listen(3000, () => {
-    console.log('Server is running on http://localhost:3000');
+  console.log('Server is running on http://localhost:3000');
 });

@@ -1,66 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shared Cursors</title>
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            height: 100vh;
-        }
-        .cursor {
-            position: absolute;
-            width: 15px;
-            height: 15px;
-            background-color: rgba(0, 0, 255, 0.6);
-            border-radius: 50%;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat Room</title>
+  <link rel="stylesheet" href="styles.css"> <!-- Optional, if you want to style the page -->
 </head>
 <body>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
-    <script>
-        const socket = io();  // Connect to the WebSocket server
+  <div class="container">
+    <h1 id="room-title">join a room</h1>
 
-        // Create an element to represent the user's cursor
-        const cursorElement = document.createElement('div');
-        cursorElement.classList.add('cursor');
-        document.body.appendChild(cursorElement);
+    <!-- Form for entering the room name -->
+    <div id="room-form">
+      <input type="text" id="room-name" placeholder="Enter room name" />
+      <button id="join-room">join</button>
+    </div>
 
-        // Store the cursor positions of other users
-        const otherCursors = {};
+    <!-- Chat interface, initially hidden -->
+    <div id="chat-container" style="display: none;">
+      <div id="chat-box"></div>
+      <textarea id="message-input" placeholder="Type a message..." rows="1" cols="50"></textarea>
+      <button id="send-message">send</button>
+    </div>
+  </div>
 
-        // Listen for cursor position updates from other users
-        socket.on('cursor-move', (cursorData) => {
-            if (!otherCursors[cursorData.id]) {
-                const otherCursor = document.createElement('div');
-                otherCursor.classList.add('cursor');
-                otherCursors[cursorData.id] = otherCursor;
-                document.body.appendChild(otherCursor);
-            }
-            // Update the cursor position for that user
-            const otherCursor = otherCursors[cursorData.id];
-            otherCursor.style.left = `${cursorData.x}px`;
-            otherCursor.style.top = `${cursorData.y}px`;
-        });
+  <!-- Include Socket.io client library -->
+  <script src="/socket.io/socket.io.js"></script>
 
-        // Send cursor position updates to the server
-        document.addEventListener('mousemove', (event) => {
-            const cursorData = {
-                id: socket.id,  // Unique ID for the current user
-                x: event.clientX,
-                y: event.clientY
-            };
-
-            // Update the position of the local cursor
-            cursorElement.style.left = `${cursorData.x}px`;
-            cursorElement.style.top = `${cursorData.y}px`;
-
-            // Send the cursor position to the server
-            socket.emit('cursor-move', cursorData);
-        });
-    </script>
+  <!-- Include the JavaScript file for the client-side logic -->
+  <script src="script.js"></script>
 </body>
 </html>
