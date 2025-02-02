@@ -49,3 +49,26 @@ sendMessageButton.addEventListener('click', () => {
   }
 });
 
+// Listen for Enter key press
+messageInput.addEventListener('keydown', (event) => {
+  // Check if the pressed key is Enter (keyCode 13 or key == "Enter")
+  if (event.key === "Enter") {
+    // Prevent the default behavior of adding a new line in the textarea
+    event.preventDefault();
+
+    const message = messageInput.value.trim();
+    if (message) {
+      // Emit the message to the server
+      socket.emit('chat message', { room: 'someRoom', message });
+
+      // Display the message locally in the chat box
+      const messageDiv = document.createElement('div');
+      messageDiv.textContent = `${message}`;
+      chatBox.appendChild(messageDiv);
+      chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to the bottom
+
+      // Clear the input field after sending
+      messageInput.value = '';
+    }
+  }
+});
